@@ -1,8 +1,10 @@
 var sys = require('sys'),
     http = require('http'),
     fs = require('fs'),
+    faye = require('faye'),
     json = require('./json'),
-    faye = require('faye');
+    log = require('./log'),
+    teawater = require('./engine');
     
 var comet = new faye.NodeAdapter({mount: '/fayeclient', timeout: 45}),
     client = comet.getClient();
@@ -11,14 +13,16 @@ var port = 8000;
 
 var state = {};
 
+var engine = new (teawater.Engine)();
+
 client.subscribe(
     '/general', 
     function(message) {
     
         if (!message.client || !message.type) return;
         
-        sys.puts('sync noticed message from client ' + message.client);
-        sys.puts('message type == ' + message.type);
+        log.message('sync noticed message from client ' + message.client);
+        log.message('message type == ' + message.type);
         
         switch (message.type) {
           case 'place' :
@@ -44,7 +48,7 @@ client.subscribe(
     }
 );
 
-sys.puts('Listening on ' + port);
+log.message('Listening on ' + port);
 
 http.createServer(
     function(req, resp) {
@@ -53,7 +57,7 @@ http.createServer(
         
         if (comet.handle(req, resp)) {
             
-            sys.puts('** Handled by faye');
+            log.message('** Handled by faye');
             return;
         }
         
@@ -61,7 +65,7 @@ http.createServer(
         
         if (path === '/sync') {
             
-            sys.puts('** Handled by syncserver');
+            log.message('** Handled by syncserver');
             
             resp.sendHeader(200, {'Content-Type': 'text/html'});
             resp.write(json.stringify(state));
@@ -70,7 +74,7 @@ http.createServer(
             return;
         }
         
-        sys.puts('** Handled by file server');
+        log.message('** Handled by file server');
         
         fs.readFile('./static/' + path).addCallback(
             function(content) {
@@ -87,3 +91,5 @@ http.createServer(
         );
     }
 ).listen(port);
+
+engine.run();
