@@ -4,13 +4,19 @@
         <title>TeaWater Game Client</title>
     </head>
     <body>
-        <script type="text/javascript" src="/faye-browser-min.js"></script>
+        <script type="text/javascript" src="/js/faye-browser-min.js"></script>
         <script type="text/javascript" src="/js/jquery-1.4.2.js"></script>
         <script type="text/javascript">
             
             $(function() {
                 
-                // Do stuff!
+                var fayeClient = new Faye.Client('http://localhost:8000/');
+                
+                fayeClient.subscribe('/general', function(message) {
+                    
+                    console.log('Message received: ' + message);
+                    
+                });
                 
             });
             
