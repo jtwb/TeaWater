@@ -41,7 +41,7 @@ sys.puts('Listening on ' + port);
 
 http.createServer(function(req, resp) {
    sys.puts(req.method + ' ' + req.url);
-   if (comet.call(req, resp)) {
+   if (comet.handle(req, resp)) {
       sys.puts('** Handled by faye');
       return;
    }
