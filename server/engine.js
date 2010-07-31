@@ -4,95 +4,93 @@ var log = require('./log'),
     world = require('./world'),
     entity = require('./entity');
 
-(function() {
-    this.Engine = core.Class.extend(
-        {
-            init: function(options) {
-                
-                var self = this;
-                
-                self.options = core.extend(
-                    {
-                        frameInterval: 1000
-                    },
-                    options
-                );
-                
-                log.message("Engine initialized with frame interval " + self.options.frameInterval);
-            },
+var Engine = core.Class.extend(
+    {
+        init: function(options) {
             
-            start: function() {
-                
-                var self = this;
-                
-                self.server = new server.Server();
-                self.server.start();
-                
-                self.world = new world.World();
-                self.world.addListener(
-                    'change',
-                    function(delta) {
+            var self = this;
+            
+            self.options = core.extend(
+                {
+                    frameInterval: 1000
+                },
+                options
+            );
+            
+            log.message("Engine initialized with frame interval " + self.options.frameInterval);
+        },
+        
+        start: function() {
+            
+            var self = this;
+            
+            self.server = new server.Server();
+            self.server.start();
+            
+            self.world = new world.World();
+            self.world.addListener(
+                'change',
+                function(delta) {
+                    
+                    log.message('Server sending update with ' + delta.length + ' new entity states!')
+                    
+                    self.server.comet.getClient().publish(
+                        '/world',
+                        {
+                            type: 'serverUpdate',
+                            delta: delta
+                        }
+                    );
+                }
+            );
+            
+            self.client = self.server.comet.getClient();
+            self.client.subscribe(
+                '/world',
+                function(message) {
+                    
+                    if(message.hasOwnProperty('type') && message.type == 'clientUpdate') {
                         
-                        log.message('Server sending update with ' + delta.length + ' new entity states!')
+                        log.message('Received update from client. Planting at (' + message.x + ', ' + message.y + ')');
                         
-                        self.server.comet.getClient().publish(
-                            '/world',
-                            {
-                                type: 'serverUpdate',
-                                delta: delta
-                            }
+                        self.world.setTile(
+                            new (entity.Plant)(
+                                {
+                                    x: message.x,
+                                    y: message.y
+                                }
+                            )
                         );
                     }
-                );
-                
-                self.client = self.server.comet.getClient();
-                self.client.subscribe(
-                    '/world',
-                    function(message) {
-                        
-                        if(message.hasOwnProperty('type') && message.type == 'clientUpdate') {
-                            
-                            log.message('Received update from client. Planting at (' + message.x + ', ' + message.y + ')');
-                            
-                            self.world.setTile(
-                                new (entity.Plant)(
-                                    {
-                                        x: message.x,
-                                        y: message.y
-                                    }
-                                )
-                            );
-                        }
-                    }
-                );
-                
-                self.frameExecution = setInterval(
-                    function() {
-                        self.executeFrame();
-                    },
-                    self.options.frameInterval
-                );
-                
-                log.message("Engine starting!");
-            },
+                }
+            );
             
-            stop: function() {
-                
-                var self = this;
-                clearInterval(self.frameExecution);
-                
-                log.message("Engine stopping!");
-            },
+            self.frameExecution = setInterval(
+                function() {
+                    self.executeFrame();
+                },
+                self.options.frameInterval
+            );
             
-            executeFrame: function() {
-                
-                var self = this;
-                self.world.invalidate();
-                // Game logic..
-                
-            }
+            log.message("Engine starting!");
+        },
+        
+        stop: function() {
+            
+            var self = this;
+            clearInterval(self.frameExecution);
+            
+            log.message("Engine stopping!");
+        },
+        
+        executeFrame: function() {
+            
+            var self = this;
+            self.world.invalidate();
+            // Game logic..
+            
         }
-    );
-})();
+    }
+);
 
 exports.Engine = Engine;
