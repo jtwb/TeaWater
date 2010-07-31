@@ -2,21 +2,77 @@
 <html lang="en">
     <head>
         <title>TeaWater Game Client</title>
+        <link media="screen" rel="stylesheet" href="/css/reset.css" />
+        <link media="screen" rel="stylesheet" href="/css/main.css" />
     </head>
     <body>
+        
+        <div id="ViewPort"></div>
+        
         <script type="text/javascript" src="/js/faye-browser-min.js"></script>
-        <script type="text/javascript" src="/js/jquery-1.4.2.js"></script>
+        <script type="text/javascript" src="/js/raphael-min.js"></script>
+        <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
         <script type="text/javascript">
             
             $(function() {
                 
-                var fayeClient = new Faye.Client('http://localhost:8000/');
+                var client = new Faye.Client('http://localhost:8000/comet');
                 
-                fayeClient.subscribe('/general', function(message) {
-                    
-                    console.log('Message received: ' + message);
-                    
-                });
+                
+                for(var i = 0; i < 10; i++) {
+                    var row = $('<ul></ul>').appendTo('#ViewPort');
+                    for(var j = 0; j < 10; j++) {
+                        var col = $('<li></li>').appendTo(row).data(
+                            'position',
+                            {
+                                x: j,
+                                y: i
+                            }
+                        );
+                    }
+                }
+                
+                $('li').bind(
+                    'click',
+                    function(event) {
+                        
+                        var tile = $(event.currentTarget);
+                        
+                        client.publish(
+                            '/world',
+                            {
+                                type: 'clientUpdate',
+                                x: tile.data('position').x,
+                                y: tile.data('position').y
+                            }
+                        );
+                    }
+                );
+                
+                
+                client.subscribe(
+                    '/world', 
+                    function(message) {
+                        
+                        if(message.hasOwnProperty('type') && message.type == 'serverUpdate') {
+                            
+                            for(var i = 0; i < message.delta.length; i++) {
+                                
+                                console.log('Setting state of ' + message.delta[i].x + ', ' + message.delta[i].y + ' to ' + message.delta[i].state);2
+                                $('#ViewPort > ul').eq(message.delta[i].y).children('li').eq(message.delta[i].x).addClass(message.delta[i].state);
+                            }
+                        }
+                    }
+                );
+                
+                //client.publish('/general', {text: "This is a test!"});
+                
+/*
+                setTimeout(function() {
+                    console.log('Publishing!');
+                    client.publish('/general', {text: "This is a test!"});
+                }, 2000);
+*/
                 
             });
             

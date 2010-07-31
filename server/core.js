@@ -1,4 +1,5 @@
 // TeaWater core supporting library
+var events = require('events');
 
 // Basic extend functionality inspired by jQuery =]
 (function() {
@@ -38,8 +39,9 @@
 // Inspired by base2 and Prototype
 (function(){
     var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
-    // The base Class implementation (does nothing)
-    this.Class = function(){};
+    
+    // Modified for Node: the base Class should be an EventEmitter!
+    this.Class = events.EventEmitter;
     
     // Create a new Class that inherits from this class
     Class.extend = function(prop) {
