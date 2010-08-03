@@ -1,0 +1,19 @@
+Game State notes
+
+What does the game state object look like?  What domain does it model?
+
+ - A collection of game objects such as
+   - Towers
+   - Player Territories
+
+- Location-oriented data
+
+How does the game engine operate?
+
+ - requests are added to a queue
+
+ - engine runs as a worker thread, processing rules once per "frame"
+  - if queue is empty, engine doesn't need to send a packet to users
+  - consider using Dynamic Programming to lessen load of rules processing:
+     hold intermediate computations in-memory between frames
+     (Dynamic Programming is the worst name ever)

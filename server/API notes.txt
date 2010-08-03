@@ -1,0 +1,35 @@
+Teawater REST API
+
+GET /game
+ "Include player in game"
+  + map = mapformat (e.g. mapname, spawnpoints)
+  + auth token stuff
+
+GET /game?position=X
+ "Return game state relevant to player"
+ ?auth=token
+
+PUT /game
+ "Player creates new game object"
+ ?auth=token
+ postdata = json
+
+POST /game?oid=X
+ "Player updates a game object"
+ ?auth=token
+ postdata = json
+
+Teawater broadcast policy
+
+ v1
+  Every user event is rebroadcast
+
+ v2
+  Every game event is broadcast
+
+ v3
+  Every game event in player locality is sent to player
+
+ v4
+  Event broadcast is batched to save bandwidth (and locality-based)
+
