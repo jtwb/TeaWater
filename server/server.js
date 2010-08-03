@@ -1,7 +1,8 @@
 var http = require('http'),
     faye = require('faye'),
     log = require('./log'),
-    core = require('./core');
+    core = require('./core'),
+    useraciton = require('./useraction');
     
 var Server = core.Class.extend(
     {
@@ -16,22 +17,19 @@ var Server = core.Class.extend(
                 },
                 options
             );
+
+            if (!('pipeline' in self.options)) {
+               log.message('Server not connected to event pipeline', 'error');
+            }
             
-            log.message('Server instantiated')
+            log.message('Server instantiated');
         },
         
         start: function() {
             
             var self = this;
-            
-            self.http = http.createServer(
-                function(request, response) {
-                    
-                    log.message('Server received ' + request.method + ' request: ' + request.url);
-                    
-                }
-            );
-            
+
+            self.http = http.createServer(self.handle);
             
             self.comet = new faye.NodeAdapter(
                 {
@@ -48,7 +46,15 @@ var Server = core.Class.extend(
         
         stop: function() {
         
-        }
+        },
+
+        /*
+         * Convert requests into user actions
+         * send user actions to user action queue
+         */
+        handle: function(request, response) {
+            log.message('Server received ' + request.method + ' request: ' + request.url);
+        } 
     }
 );
 
