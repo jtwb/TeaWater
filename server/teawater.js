@@ -1,0 +1,1 @@
+(new (require('./engine').Engine)()).start();

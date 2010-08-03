@@ -1,37 +1,55 @@
-var sys = require('sys'),
-    http = require('http'),
-    fs = require('fs'),
-    json = require('./json'),
+var http = require('http'),
     faye = require('faye'),
-    enginepipeline = require('./enginepipeline');
-
-var comet = new faye.NodeAdapter({mount: '/fayeclient', timeout: 45}),
-    client = comet.getClient(),
-    pipeline = new enginepipeline.GameEnginePipeline();
-
-var port = 8000;
-
-sys.puts('Listening on ' + port);
-
-http.createServer(function(req, resp) {
-   sys.puts(req.method + ' ' + req.url);
-   if (comet.handle(req, resp)) {
-      sys.puts('** Handled by faye');
-      return;
-   }
-
-  if (req.url == '/game') {
-    switch (req.method) {
-      case 'GET' :
-        pipeline.handshake(req, resp);
-        break;
-      case 'PUT' :
-        pipeline.create(req, resp);
-        break;
-      case 'POST' :
-        pipeline.update(req, resp);
-        break;
+    log = require('./log'),
+    core = require('./core');
+    
+var Server = core.Class.extend(
+    {
+        init: function(options) {
+            
+            var self = this;
+            
+            self.options = core.extend(
+                {
+                    mount: '/comet',
+                    port: 8000
+                },
+                options
+            );
+            
+            log.message('Server instantiated')
+        },
+        
+        start: function() {
+            
+            var self = this;
+            
+            self.http = http.createServer(
+                function(request, response) {
+                    
+                    log.message('Server received ' + request.method + ' request: ' + request.url);
+                    
+                }
+            );
+            
+            
+            self.comet = new faye.NodeAdapter(
+                {
+                    mount: self.options.mount, 
+                    timeout: 45
+                }
+            );
+            
+            self.comet.attach(self.http);
+            self.http.listen(self.options.port);
+            
+            log.message('Server mounted to ' + self.options.mount + ' and listening on port ' + self.options.port);
+        },
+        
+        stop: function() {
+        
+        }
     }
-  }
-}).listen(port);
+);
 
+exports.Server = Server;
