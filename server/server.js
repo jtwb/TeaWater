@@ -1,8 +1,7 @@
 var http = require('http'),
     faye = require('faye'),
     log = require('./log'),
-    core = require('./core'),
-    useraciton = require('./useraction');
+    core = require('./core');
     
 var Server = core.Class.extend(
     {
@@ -18,10 +17,6 @@ var Server = core.Class.extend(
                 options
             );
 
-            if (!('pipeline' in self.options)) {
-               log.message('Server not connected to event pipeline', 'error');
-            }
-            
             log.message('Server instantiated');
         },
         
