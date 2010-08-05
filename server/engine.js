@@ -1,6 +1,7 @@
 var log = require('./log'),
     core = require('./core'),
     server = require('./server'),
+    rest = require('./restapi'),
     world = require('./world'),
     entity = require('./entity');
 
@@ -24,10 +25,12 @@ var Engine = core.Class.extend(
             
             var self = this;
             
-            self.server = new server.Server();
+            self.world = new world.World();
+            self.rest = new rest.RestApi({world:self.world});
+            self.server = new server.Server({rest:self.rest});
+
             self.server.start();
             
-            self.world = new world.World();
             self.world.addListener(
                 'change',
                 function(delta) {

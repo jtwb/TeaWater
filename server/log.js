@@ -1,11 +1,5 @@
 var sys = require('sys');
 
-var type = {
-    debug: 0,
-    warning: 1,
-    error: 2
-};
-
 var message = function(message, type) {
     
     var typeOut,
@@ -13,13 +7,13 @@ var message = function(message, type) {
     
     switch(type) {
         default:
-        case this.type.debug:
+        case 'debug':
             typeOut = '\033[32m[ D ]\033[39m';
             break;
-        case this.type.warning:
+        case 'warning':
             typeOut = '\033[33m[ W ]\033[39m';
             break;
-        case this.type.error:
+        case 'error':
             typeOut = '\033[31m[ E ]\033[39m';
             break;
             
@@ -30,5 +24,9 @@ var message = function(message, type) {
     sys.puts(typeOut + ' ' + messageOut);
 };
 
-exports.type = type;
+var inspect = function(o) {
+    message(sys.inspect(o, true), 0);
+};
+
 exports.message = message;
+exports.inspect = inspect;

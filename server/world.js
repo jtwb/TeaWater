@@ -1,7 +1,6 @@
 var log = require('./log'),
     core = require('./core'),
-    entity = require('./entity'),
-    sys = require('sys');
+    entity = require('./entity');
 
 var World = core.Class.extend(
     {
@@ -16,7 +15,7 @@ var World = core.Class.extend(
                 },
                 options
             );
-            
+
             self.handleChangedEntity = function(changedEntity) {
                 self.delta.push(changedEntity.serialize());
             }

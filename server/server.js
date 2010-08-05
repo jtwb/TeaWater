@@ -17,6 +17,8 @@ var Server = core.Class.extend(
                 options
             );
 
+            self.rest = self.options.rest || {};
+
             log.message('Server instantiated');
         },
         
@@ -24,7 +26,9 @@ var Server = core.Class.extend(
             
             var self = this;
 
-            self.http = http.createServer(self.handle);
+            self.http = http.createServer(function() {
+                self.rest.handle.apply(self.rest, arguments);
+            });
             
             self.comet = new faye.NodeAdapter(
                 {
@@ -41,15 +45,7 @@ var Server = core.Class.extend(
         
         stop: function() {
         
-        },
-
-        /*
-         * Convert requests into user actions
-         * send user actions to user action queue
-         */
-        handle: function(request, response) {
-            log.message('Server received ' + request.method + ' request: ' + request.url);
-        } 
+        }
     }
 );
 
