@@ -1,15 +1,187 @@
-# handshake
-curl -v "http://127.0.0.1:8000/game"
+# Assumptions about game rules made in this script
+# 1 There's no money
+# 2 Clients have a copy of Standard Map 0
+# 3 Towers have a 'level' attribute
+# 4 Towers can be upgraded
+# 5 Water Towers emit a Water Aura which lets Plant Towers be built
+# 6 Water and Plant Towers emit a Territory Aura
+# 7 Plant Towers emit a stronger Territory Aura which grows with levels
+# 8 Water Tower Territory Aura doesn't grow with Tower level
+
+
+# request to join game
+curl -v -T ./put-join.json "http://127.0.0.1:8000/v1/resource/meta"
+
+# expect OK with UID, Shared Secret: (200)
+{
+    uid : 11,
+    secret : 10g43g0a,
+    fayechannel : "http://127.0.0.1:8000/users/user-11"
+}
+
+# otherwise, server full error: (200)
+{
+    error : "Server full"
+}
+
+# client must now ping server on faye channel
+# server must now inform player of gamestate via fayechannel
+# after next processing tick
+
+{
+    layers : {
+        map : {
+            maptype : 'standard',
+            standardMapId : 0
+        },
+        players : {
+            '3' : {
+                username : "Rutherford",
+                uid : 3
+            },
+            '11' : {
+                username : "Jasonator",
+                uid : 11
+            }
+        },
+        towers : {
+            '100' : {
+                id : 100,
+                pos : [3, 4],
+                type : "Water",
+                level : 1
+            }
+        },
+        effects : {
+            '2001' : {
+                id : 2001,
+                type : "WaterAura",
+                pos : [3, 4],
+                power : 2
+            },
+            '2002' : {
+                id : 2002,
+                type : "TerritoryAura",
+                pos : [3, 4],
+                power : 2
+            }
+        }
+    }
+}
 
 # create tower
-curl -v -T ./put-1.json "http://127.0.0.1:8000/game"
+curl -v -T ./put-tower1.json "http://127.0.0.1:8000/v1/resource/tower"
 
-# create tower
-curl -v -T ./put-2.json "http://127.0.0.1:8000/game"
+# Good response (200)
+{
+    id : 101,
+    pos : [6, 6],
+    type : "Water",
+    level : 1
+}
 
-# upgrade tower
-curl -v -T ./post-1.json "http://127.0.0.1:8000/game"
+# Bad response (403)
+{
+    error : "Action not allowed"
+}
 
-# get state (auxilliary test)
-curl -v "http://127.0.0.1:8000/game?position=99:99"
+# faye will update clients on next tick
+{
+    layers : {
+        towers : {
+            '101' : {
+                id : 101,
+                pos : [6, 6],
+                type : "Water",
+                level : 1
+            }
+        },
+        effects : {
+            '2003' : {
+                id : 2003,
+                type : "WaterAura",
+                pos : [6, 6],
+                power : 2
+            },
+            '2004' : {
+                id : 2004,
+                type : "TerritoryAura",
+                pos : [6, 6],
+                power : 2
+            }
+        }
+    }
+}
 
+# create grass tower
+curl -v -T ./put-tower2.json "http://127.0.0.1:8000/v1/resource/tower"
+
+# Good response (200)
+{
+    id : 102,
+    pos : [6, 5],
+    type : "Plant",
+    level : 1
+}
+
+# Bad response (403)
+{
+    error : "Action not allowed"
+}
+
+# faye will update clients on next tick
+{
+    layers : {
+        towers : {
+            '102' : {
+                id : 102,
+                pos : [6, 5],
+                type : "Plant",
+                level : 1
+            }
+        },
+        effects : {
+            '2005' : {
+                id : 2005,
+                type : "TerritoryAura",
+                pos : [6, 5],
+                power : 4
+            }
+        }
+    }
+}
+
+# upgrade tower 1
+curl -v -T ./post-tower1.json "http://127.0.0.1:8000/v1/resource/tower?id=101"
+
+# Good response (200)
+{
+    id : 101,
+    pos : [6, 6],
+    type : "Water",
+    level : 2
+}
+
+# Bad response (403)
+{
+    error : "Action not allowed"
+}
+
+# faye will update clients on next tick
+{
+    layers : {
+        towers : {
+            '101' : {
+                level : 2
+            }
+        },
+        effects : {
+            '2003' : {
+                id : 2003,
+                type : "WaterAura",
+                pos : [6, 6],
+                power : 3
+            }
+        }
+    }
+}

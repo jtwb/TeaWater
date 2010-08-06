@@ -1,0 +1,15 @@
+# handshake
+curl -v "http://127.0.0.1:8000/game"
+
+# create tower
+curl -v -T ./put-1.json "http://127.0.0.1:8000/game"
+
+# create tower
+curl -v -T ./put-2.json "http://127.0.0.1:8000/game"
+
+# upgrade tower
+curl -v -T ./post-1.json "http://127.0.0.1:8000/game"
+
+# get state (auxilliary test)
+curl -v "http://127.0.0.1:8000/game?position=99:99"
+
