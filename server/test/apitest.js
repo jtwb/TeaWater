@@ -6,7 +6,7 @@ var und = function(x) {
 };
 
 var fayechannel = '/apitest',
-    fayeclient = new Faye.Client('/fayeclient');
+    fayeclient = new Faye.Client('/comet');
 
 fayeclient.subscribe(fayechannel, function(){});
 
