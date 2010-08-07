@@ -12,12 +12,13 @@ var Server = core.Class.extend(
             self.options = core.extend(
                 {
                     mount: '/comet',
-                    port: 8000
+                    port: 8000,
+                    rest: {}
                 },
                 options
             );
 
-            self.rest = self.options.rest || {};
+            self.rest = self.options.rest;
 
             log.message('Server instantiated');
         },

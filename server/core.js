@@ -26,7 +26,7 @@ var extend = function() {
     }
     
     return target;
-}
+};
     
 
 /* Simple JavaScript Inheritance
@@ -91,5 +91,49 @@ Class.extend = function(prop) {
     return Class;
 };
 
+var ArrayCollection = Class.extend(
+    {
+        init: function() {
+            var self = this;
+            self._array = [];
+        },
+        push: function(item) {
+            var self = this;
+            self._array.push(item);
+            self._dispatch();
+        },
+        pop: function() {
+            var self = this,
+                pop = self._array.pop();
+            self._dispatch();
+            return pop;
+        },
+        insert: function(item, position) {
+            var self = this;
+            self._array.splice(position, 0, item);
+            self._dispatch();
+        },
+        remove: function(position) {
+            var self = this;
+            self._array.splice(position, 1);
+            self._dispatch();
+        },
+        empty: function() {
+            var self = this;
+            self._array = [];
+            self._dispatch();
+        },
+        get: function(index) {
+            var self = this;
+            return self._array[index];
+        },
+        _dispatch: function() {
+            var self = this;
+            self.emit('change', self);
+        }
+    }
+);
+
 exports.extend = extend;
 exports.Class = Class;
+exports.ArrayCollection = ArrayCollection;

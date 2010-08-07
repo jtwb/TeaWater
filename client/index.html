@@ -12,12 +12,12 @@
         <script type="text/javascript" src="/js/faye-browser-min.js"></script>
         <script type="text/javascript" src="/js/raphael-min.js"></script>
         <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="/js/teawater-client.js"></script>
         <script type="text/javascript">
             
             $(function() {
                 
-                var client = new Faye.Client('http://localhost:8000/comet');
-                
+                $.tw.connect();
                 
                 for(var i = 0; i < 10; i++) {
                     var row = $('<ul></ul>').appendTo('#ViewPort');
@@ -37,43 +37,20 @@
                     function(event) {
                         
                         var tile = $(event.currentTarget);
+                        var x = tile.data('position').x;
+                        var y = tile.data('position').y;
                         
-                        client.publish(
-                            '/world',
-                            {
-                                type: 'clientUpdate',
-                                x: tile.data('position').x,
-                                y: tile.data('position').y
-                            }
-                        );
+                        // TODO: $.tw.putEntity(...);
                     }
                 );
                 
-                
-                client.subscribe(
-                    '/world', 
-                    function(message) {
+                $.tw.on(
+                    'update',
+                    function(errata) {
                         
-                        if(message.hasOwnProperty('type') && message.type == 'serverUpdate') {
-                            
-                            for(var i = 0; i < message.delta.length; i++) {
-                                
-                                console.log('Setting state of ' + message.delta[i].x + ', ' + message.delta[i].y + ' to ' + message.delta[i].state);2
-                                $('#ViewPort > ul').eq(message.delta[i].y).children('li').eq(message.delta[i].x).addClass(message.delta[i].state);
-                            }
-                        }
+                        // TODO: Update map based on errata
                     }
                 );
-                
-                //client.publish('/general', {text: "This is a test!"});
-                
-/*
-                setTimeout(function() {
-                    console.log('Publishing!');
-                    client.publish('/general', {text: "This is a test!"});
-                }, 2000);
-*/
-                
             });
             
         </script>
