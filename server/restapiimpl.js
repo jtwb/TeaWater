@@ -30,8 +30,17 @@ var RestApiImpl = core.Class.extend(
             log.message('Rest API Impl handling:');
             log.inspect(context);
             switch (request) {
-                case "PUT /meta" :
+                case "PUT /player" :
                     return self.handlePlayerPut(context);
+                    break;
+                case "PUT /entity" :
+                    return self.handleEntityPut(context);
+                    break;
+                case "POST /entity" :
+                    return self.handleEntityPost(context);
+                    break;
+                case "DELETE /entity" :
+                    return self.handleEntityDelete(context);
                     break;
                 default :
                     return self.handleUnknown(context);
@@ -39,11 +48,23 @@ var RestApiImpl = core.Class.extend(
         }, 
 
         handleUnknown: function(context) {
-            return { error : "Unknown method " + context.pathname };
+            return { error : "Unknown method " + context.method + " " + context.pathname };
         },
 
         handlePlayerPut : function(context) {
-            return { message : "OK Yay" };
+            return { message : "OK Yay, Player Put" };
+        },
+
+        handleEntityPut : function(context) {
+            return { message : "OK Yay, Entity Put" };
+        },
+
+        handleEntityPost : function(context) {
+            return { message : "OK Yay, Entity Post" };
+        },
+
+        handleEntityDelete : function(context) {
+            return { message : "OK Yay, Entity Delete" };
         }
     }
 );
