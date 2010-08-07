@@ -28,10 +28,10 @@ var RestAuthenticator = core.Class.extend(
          *
          * //TODO stub
          */
-        isValid: function(request, opts) {
+        isValid: function(context, opts) {
 
             var self = this,
-                query = urlLib.parse(request.url, true).query || {},
+                query = context.query,
                 authKeys = ['uid', 'time', 'sig'],
                 authVals = {},
                 localSig = '';
