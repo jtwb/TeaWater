@@ -1,12 +1,11 @@
 var log = require('./log'),
     core = require('./core'),
-    urlLib = require('url');
+    urlLib = require('url'),
+    crypto = require('crypto');
     
 var RestAuthenticator = core.Class.extend(
     {
-        credentials: {
-            TestUser: '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
-        },
+        
         init: function(options) {
             
             var self = this;
@@ -18,7 +17,7 @@ var RestAuthenticator = core.Class.extend(
                 options
             );
 
-            self.secrets = { };
+            self.credentials = { };
 
             log.message('Rest API Authenticator instantiated');
         },
@@ -64,11 +63,11 @@ var RestAuthenticator = core.Class.extend(
         /*
          * Return new shared secret for user by ID
          */
-        newSecret: function(uid) {
+        addUser: function(uid) {
             var self = this,
                 secret = self._genSecret();
 
-            self.secrets[uid] = secret;
+            self.credentials[uid] = secret;
 
             return secret;
         },
@@ -79,8 +78,8 @@ var RestAuthenticator = core.Class.extend(
          */
         _genSecret: function() {
             
-            // Just trying to make something random.. not sure if this is the best way..
-            return Math.floor(16777216 + Math.random() * 251658239).toString(16).toUpperCase() + (new Date()).getTime().toString(16).toUpperCase();
+            // Just trying to make something random..
+            return crypto.createHash('sha1').update(Math.floor(16777216 + Math.random() * 251658239).toString(16).toUpperCase() + (new Date()).getTime().toString(16).toUpperCase()).digest('hex');
         }
     }
 );

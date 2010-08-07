@@ -78,6 +78,7 @@
                             url: self.url,
                             data: self.mapQuery(),
                             error: function() {
+                                
                                 TeaWater.log('There was an error making an AJAX call to ' + self.url, TeaWater.logType.error);
                             },
                             success: function(json, status, xhr) {
