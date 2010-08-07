@@ -52,7 +52,7 @@
         },
         ajaxOptions: {
             
-            method: "GET",
+            type: "GET",
             async: true,
             cache: true,
             dataType: 'json'
@@ -118,13 +118,13 @@
                 
                 return str_sha1(arguments.join());
             },
-            _generateSignature: function() {
+            _generateSignature: function(request) {
                 
                 var self = this;
                 
-                if(self._userId && self._sharedSecret) {
+                if(request && self._userId && self._sharedSecret) {
                     
-                    return self._hash(self._userId, self._sharedSecret, self._timestamp());
+                    return self._hash(request, self._userId, self._sharedSecret, self._timestamp());
                 } else {
                     
                     return false;
