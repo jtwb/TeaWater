@@ -19,7 +19,7 @@
         },
         extend: function(extension) {
             
-            $.extend(TeaWater, extension );
+            $.extend(TeaWater, extension);
         }
     };
     
@@ -122,6 +122,16 @@
                             self.listeners.splice(i, 1);
                             return false;
                         }
+                    }
+                );
+            },
+            _dispatch: function(event, data) {
+                
+                $.each(
+                    self.listeners[event],
+                    function(i, l) {
+                        
+                        l(data);
                     }
                 );
             },

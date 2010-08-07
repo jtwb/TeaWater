@@ -4,6 +4,9 @@ var log = require('./log'),
     
 var RestAuthenticator = core.Class.extend(
     {
+        credentials: {
+            TestUser: '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
+        },
         init: function(options) {
             
             var self = this;
@@ -19,7 +22,6 @@ var RestAuthenticator = core.Class.extend(
 
             log.message('Rest API Authenticator instantiated');
         },
-        
         /*
          * Verify request authentication
          * 
@@ -76,7 +78,9 @@ var RestAuthenticator = core.Class.extend(
          * TODO stub
          */
         _genSecret: function() {
-            return 123123;
+            
+            // Just trying to make something random.. not sure if this is the best way..
+            return Math.floor(16777216 + Math.random() * 251658239).toString(16).toUpperCase() + (new Date()).getTime().toString(16).toUpperCase();
         }
     }
 );
