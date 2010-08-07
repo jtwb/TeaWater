@@ -115,6 +115,7 @@ var RestApi = core.Class.extend(
             var json = JSON.stringify(content);
             response.writeHead(code, {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
                 'Content-Length': json.length,
                 'Content-Type': 'text/plain'
             });
@@ -127,6 +128,7 @@ var RestApi = core.Class.extend(
                 output = context.callback + "(" + json + ");";
             response.writeHead(code, {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
                 'Content-Length': output.length,
                 'Content-Type': 'text/plain'
             });
