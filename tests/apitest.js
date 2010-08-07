@@ -35,9 +35,11 @@ test("Reset server state", function() {
 test("Join server", function() {
     $.ajax({
         type: "PUT",
-        url: apibase + "/meta",
-        data: "username=Jasonator&clientVersion=0.1.1",
-        success: function(message) {
+        url: apibase + "/player",
+        data: {username:"Jasonator", clientVersion:"0.1.1"},
+        success: function(message, statcode, xhr) {
+            console.log(statcode);
+            console.log(xhr.status);
             ok(true, "Server responded OK to join request");
             start();
         },

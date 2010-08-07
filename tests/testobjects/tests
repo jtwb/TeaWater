@@ -10,7 +10,7 @@
 
 
 # request to join game
-curl -v -T ./put-join.json "http://127.0.0.1:8000/v1/resource/meta"
+curl -v -T ./put-join.json "http://127.0.0.1:8000/v1/resource/player"
 
 # expect OK with UID, Shared Secret: (200)
 {
@@ -70,7 +70,7 @@ curl -v -T ./put-join.json "http://127.0.0.1:8000/v1/resource/meta"
 }
 
 # create tower
-curl -v -T ./put-tower1.json "http://127.0.0.1:8000/v1/resource/tower"
+curl -v -T ./put-tower1.json "http://127.0.0.1:8000/v1/resource/entity"
 
 # Good response (200)
 {
@@ -114,7 +114,7 @@ curl -v -T ./put-tower1.json "http://127.0.0.1:8000/v1/resource/tower"
 }
 
 # create grass tower
-curl -v -T ./put-tower2.json "http://127.0.0.1:8000/v1/resource/tower"
+curl -v -T ./put-tower2.json "http://127.0.0.1:8000/v1/resource/entity"
 
 # Good response (200)
 {
@@ -152,7 +152,7 @@ curl -v -T ./put-tower2.json "http://127.0.0.1:8000/v1/resource/tower"
 }
 
 # upgrade tower 1
-curl -v -T ./post-tower1.json "http://127.0.0.1:8000/v1/resource/tower?id=101"
+curl -v -T ./post-tower1.json "http://127.0.0.1:8000/v1/resource/entity?id=101"
 
 # Good response (200)
 {
