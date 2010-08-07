@@ -110,6 +110,36 @@
                 
                 self.listeners[event].push(listener);
             },
+            _timestamp: function() {
+                
+                return (new Date()).getTime();
+            },
+            _hash: function() {
+                
+                return str_sha1(arguments.join());
+            },
+            _generateSignature: function() {
+                
+                var self = this;
+                
+                if(self._userId && self._sharedSecret) {
+                    
+                    return self._hash(self._userId, self._sharedSecret, self._timestamp());
+                } else {
+                    
+                    return false;
+                }
+            },
+            _dispatch: function(event, data) {
+                
+                $.each(
+                    self.listeners[event],
+                    function(i, l) {
+                        
+                        l(data);
+                    }
+                );
+            },
             cancel: function(event, listener) {
                 
                 var self = this;
@@ -122,16 +152,6 @@
                             self.listeners.splice(i, 1);
                             return false;
                         }
-                    }
-                );
-            },
-            _dispatch: function(event, data) {
-                
-                $.each(
-                    self.listeners[event],
-                    function(i, l) {
-                        
-                        l(data);
                     }
                 );
             },
