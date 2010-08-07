@@ -1,5 +1,6 @@
 var log = require('./log'),
     core = require('./core'),
+    restimpl = require('./restapiimpl'),
     urlLib = require('url'),
     restsecure = require('./restsecure');
     
@@ -15,6 +16,8 @@ var RestApi = core.Class.extend(
             );
 
             self.world = options.world || {};
+
+            self.impl = new restimpl.RestApiImpl(self.world);
 
             self.authenticator = new restsecure.RestAuthenticator({
                 logFailures : true
@@ -40,11 +43,10 @@ var RestApi = core.Class.extend(
             // strip and decode authentication
             // verify message validity
             if (!self.authenticator.isValid(context)) {
-                self.accessDenied(context, response);
-                return;
+            // TODO disabled for now
+            //    self.accessDenied(context, response);
+            //    return;
             }
-
-            ok(context, response);
 
             // if post / delete / get:
             //   select world objects affected by query
@@ -53,15 +55,18 @@ var RestApi = core.Class.extend(
             //   check creation policy for uid, object type, location
 
             // if we're good, commit change to world
+            self.ok(self.impl.handle(context), context, response);
         }, 
 
         setupRequestContext: function(request) {
-            var context = urlLib.parse(request.url, true);
+            var context = urlLib.parse(request.url, true),
+                pathparts = context.pathname.split('/');
+
+            //log.inspect(request);
+
+            context.method = request.method;
 
             context.query = context.query || {};
-
-            log.inspect(request.url);
-            log.inspect(context);
 
             context.format = context.query.format || 'json';
 
@@ -69,12 +74,18 @@ var RestApi = core.Class.extend(
                 context.callback = context.query.callback || 'twapi';
             }
 
+            context.version = (pathparts[1].match(/\d+/) || [])[0];
+            context.apipath = context.pathname.replace(/^.*resource/, ""); 
+
+            log.inspect(request.url);
+            log.inspect(context);
+
             return context;
         },
 
-        ok: function(context, response) {
+        ok: function(message, context, response) {
             var self = this;
-            self.respond(200, { error: "Request processed" }, context, response);
+            self.respond(200, message, context, response);
         },
 
         accessDenied: function(context, response) {
@@ -103,6 +114,7 @@ var RestApi = core.Class.extend(
         respondJson : function(code, content, context, response) {
             var json = JSON.stringify(content);
             response.writeHead(code, {
+                'Access-Control-Allow-Origin': '*',
                 'Content-Length': json.length,
                 'Content-Type': 'text/plain'
             });
@@ -114,6 +126,7 @@ var RestApi = core.Class.extend(
             var json = JSON.stringify(content),
                 output = context.callback + "(" + json + ");";
             response.writeHead(code, {
+                'Access-Control-Allow-Origin': '*',
                 'Content-Length': output.length,
                 'Content-Type': 'text/plain'
             });
