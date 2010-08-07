@@ -30,6 +30,12 @@ var RestApiImpl = core.Class.extend(
             log.message('Rest API Impl handling:');
             log.inspect(context);
             switch (request) {
+                case "GET /player" :
+                    return self.handlePlayerGet(context);
+                    break;
+                case "GET /entity" :
+                    return self.handleEntityGet(context);
+                    break;
                 case "PUT /player" :
                     return self.handlePlayerPut(context);
                     break;
@@ -51,8 +57,27 @@ var RestApiImpl = core.Class.extend(
             return { error : "Unknown method " + context.method + " " + context.pathname };
         },
 
+        handlePlayerGet : function(context) {
+            return { 
+                id : 1100,
+                username : "Jasonator"
+            };
+        },
+
+        handleEntityGet : function(context) {
+            return {
+                id : 2100,
+                pos : [6, 6],
+                type : "Water",
+                level : 1
+            }
+        },
+
         handlePlayerPut : function(context) {
-            return { message : "OK Yay, Player Put" };
+            return {
+                id : 1100,
+                secret : "234509g9re9gjer039035"
+            };
         },
 
         handleEntityPut : function(context) {
