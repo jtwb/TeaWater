@@ -1,5 +1,6 @@
 var log = require('./log'),
     core = require('./core'),
+    requestcontext = require('./requestcontext'),
     restimpl = require('./restapiimpl'),
     urlLib = require('url'),
     restsecure = require('./restsecure');
@@ -37,12 +38,13 @@ var RestApi = core.Class.extend(
             var self = this;
             log.message('Rest API received ' + request.method + ' request: ' + request.url);
 
-            var context = self.setupRequestContext(request);
+            var context = new requestcontext.RequestContext({request:request});
 
 
             // strip and decode authentication
             // verify message validity
             if (!self.authenticator.isValid(context)) {
+                log.message('... Ignored, authenticator disabled', 'error');
             // TODO disabled for now
             //    self.accessDenied(context, response);
             //    return;
@@ -57,31 +59,6 @@ var RestApi = core.Class.extend(
             // if we're good, commit change to world
             self.ok(self.impl.handle(context), context, response);
         }, 
-
-        setupRequestContext: function(request) {
-            var context = urlLib.parse(request.url, true),
-                pathparts = context.pathname.split('/');
-
-            //log.inspect(request);
-
-            context.method = request.method;
-
-            context.query = context.query || {};
-
-            context.format = context.query.format || 'json';
-
-            if (context.format == 'jsonp') {
-                context.callback = context.query.callback || 'twapi';
-            }
-
-            context.version = (pathparts[1].match(/\d+/) || [])[0];
-            context.apipath = context.pathname.replace(/^.*resource/, ""); 
-
-            log.inspect(request.url);
-            log.inspect(context);
-
-            return context;
-        },
 
         ok: function(message, context, response) {
             var self = this;
