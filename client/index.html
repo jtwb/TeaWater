@@ -11,45 +11,62 @@
         
         <script type="text/javascript" src="/js/sha1.js"></script>
         <script type="text/javascript" src="/js/faye-browser-min.js"></script>
-        <script type="text/javascript" src="/js/raphael-min.js"></script>
         <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="/js/teawater-client.js"></script>
         <script type="text/javascript">
             
             $(function() {
                 
-                $.tw.connect();
+                var username = "TestUser";
                 
-                for(var i = 0; i < 10; i++) {
-                    var row = $('<ul></ul>').appendTo('#ViewPort');
-                    for(var j = 0; j < 10; j++) {
-                        var col = $('<li></li>').appendTo(row).data(
-                            'position',
-                            {
-                                x: j,
-                                y: i
+                $.tw(
+                    function(userData) {
+                        
+                        $.tw.log('Connected! Got user ID ' + userData.id + ' =]');
+                        
+                        // Connected! Build map and attach handlers =]
+                        for(var i = 0; i < 10; i++) {
+                            var row = $('<ul></ul>').appendTo('#ViewPort');
+                            for(var j = 0; j < 10; j++) {
+                                var col = $('<li></li>').appendTo(row).data(
+                                    'position',
+                                    {
+                                        x: j,
+                                        y: i
+                                    }
+                                );
+                            }
+                        }
+                        
+                        $('li').bind(
+                            'click',
+                            function(event) {
+                                
+                                var tile = $(event.currentTarget);
+                                var x = tile.data('position').x;
+                                var y = tile.data('position').y;
+                                
+                                // TODO: $.tw.putEntity(...);
+                            }
+                        );
+                        
+                        $.tw.on(
+                            'updated',
+                            function(errata) {
+                                
+                                // TODO: Update map based on errata..
+                            }
+                        ).on(
+                            'disconnected',
+                            function() {
+                                
+                                // TODO: Close up the game world..
                             }
                         );
                     }
-                }
-                
-                $('li').bind(
-                    'click',
-                    function(event) {
-                        
-                        var tile = $(event.currentTarget);
-                        var x = tile.data('position').x;
-                        var y = tile.data('position').y;
-                        
-                        // TODO: $.tw.putEntity(...);
-                    }
-                );
-                
-                $.tw.on(
-                    'update',
-                    function(errata) {
-                        
-                        // TODO: Update map based on errata
+                ).connect(
+                    {
+                        username: username
                     }
                 );
             });
