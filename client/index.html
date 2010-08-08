@@ -22,7 +22,7 @@
                 $.tw(
                     function(userData) {
                         
-                        $.tw.log('Connected! ID is ' + userData.id + ' and secret is ' + userData.secret + ' =]');
+                        $.tw.log('Connected! Got user ID ' + userData.id + ' =]');
                         
                         // Connected! Build map and attach handlers =]
                         for(var i = 0; i < 10; i++) {
@@ -51,14 +51,24 @@
                         );
                         
                         $.tw.on(
-                            'update',
+                            'updated',
                             function(errata) {
                                 
-                                // TODO: Update map based on errata
+                                // TODO: Update map based on errata..
+                            }
+                        ).on(
+                            'disconnected',
+                            function() {
+                                
+                                // TODO: Close up the game world..
                             }
                         );
                     }
-                ).connect({username: username});
+                ).connect(
+                    {
+                        username: username
+                    }
+                );
             });
             
         </script>

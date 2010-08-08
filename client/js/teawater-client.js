@@ -30,11 +30,6 @@
                     console.log(type + " " + message);
                 } catch(e) { /* Console.log not supported... */ }
             },
-            channel: {
-                meta: '/meta',
-                player: '/v1/resource/player',
-                entity: '/v1/resource/entity'
-            },
             // The Query class, for sandboxing AJAX calls (see prototype below)..
             Query: function(options) {
                 
@@ -88,7 +83,7 @@
         mapQuery: function() {
             
             var self = this;
-            return self.data;
+            return self._data;
         },
         mapResponse: function(response) {
             
@@ -116,7 +111,7 @@
                                 TeaWater.log('There was an error making an AJAX call to ' + self.url, TeaWater.logType.error);
                             },
                             success: function(response, status, xhr) {
-                                
+                                TeaWater.log('Got a response! ' + response);
                                 self.lastResponse = response;
                                 complete(self.mapResponse(response), self);
                             }
@@ -133,18 +128,6 @@
     
     TeaWater.extend(
         {
-            listeners: {},
-            on: function(event, listener) {
-                
-                var self = this;
-                
-                if(!self.listeners.hasOwnProperty(event)) {
-                    
-                    self.listeners[event] = [];
-                }
-                
-                self.listeners[event].push(listener);
-            },
             _timestamp: function() {
                 
                 return (new Date()).getTime();
@@ -152,6 +135,46 @@
             _hash: function() {
                 
                 return str_sha1(arguments.join());
+            },
+            _channel: {
+                meta: '/meta',
+                player: '/v1/resource/player',
+                entity: '/v1/resource/entity'
+            },
+            _rest: function(method, path, parameters, callback) {
+                
+                var self = this;
+                
+                self._restClient = self._restClient || new self.Query(
+                    {
+                        id: 'Rest Client',
+                        url: function() {
+                            
+                            return self._options.restEndpoint + (path || "");
+                        }
+                    }
+                );
+                
+                self._restClient.data(
+                    parameters,
+                    false
+                );
+                
+                self._restClient.ajaxOptions(
+                    {
+                        type: method
+                    }
+                );
+                
+                self._restClient.query(callback);
+                
+            },
+            _comet: function(channel, message) {
+                
+                var self = this;
+                
+                self._cometClient = self._cometClient || new F.Client(self._options.cometEndpoint);
+                self._cometClient.publish(channel, message);
             },
             _generateSignature: function(request) {
                 
@@ -179,6 +202,20 @@
                     );
                 }
             },
+            listeners: {},
+            on: function(event, listener) {
+                
+                var self = this;
+                
+                if(!self.listeners.hasOwnProperty(event)) {
+                    
+                    self.listeners[event] = [];
+                }
+                
+                self.listeners[event].push(listener);
+                
+                return self;
+            },
             cancel: function(event, listener) {
                 
                 var self = this;
@@ -193,13 +230,16 @@
                         }
                     }
                 );
+                
+                return self;
             },
+            
             // Connect to the server. Username should be specified by the client.
             connect: function(options) {
                 
                 var self = this;
                 
-                options = $.extend(
+                self._options = $.extend(
                     {
                         username: "",
                         restEndpoint: "http://localhost:8000",
@@ -208,59 +248,76 @@
                     options
                 );
                 
-                self.restClient = new self.Query(
+                self._rest(
+                    'PUT',
+                    self._channel.player,
                     {
-                        id: 'Rest Client',
-                        url: function() {
-                            
-                            var self = this;
-                            return self._data.endpoint + (self._data.path || "");
-                        },
-                        mapQuery: function() {
-                            
-                            var self = this;
-                            return self._data.parameters;
-                        }
-                    }
-                );
-                
-                self.restClient.data(
-                    {
-                        endpoint: options.restEndpoint,
-                        path: TeaWater.channel.player,
-                        parameters: {
-                            username: options.username
-                        }
-                    }
-                );
-                
-                self.restClient.ajaxOptions(
-                    {
-                        type: 'PUT'
-                    }
-                );
-                
-                self.restClient.query(
+                        username: self._options.username
+                    },
                     function(response) {
                         
                         if(response) {
                             
                             if(response.id && response.secret) {
                                 
-                                self.cometClient = new F.Client(options.cometEndpoint);
+                                self._userID = response.id;
+                                self._sharedSecret = response.secret;
+                                self._connected = true;
                                 
                                 self._dispatch(
                                     'connected',
                                     {
-                                        id: response.id,
-                                        secret: response.secret
+                                        id: response.id
                                     }
                                 );
+                            } else {
                                 
-                                // TODO: Connect to client's authenticated comet channel...
+                                self._dispatch(
+                                    'error',
+                                    "Connection refused!"
+                                );
                             }
                         }
                     }
+                );
+                
+                return self;
+            },
+            // Disconnect client and clean up TeaWater settings.
+            disconnect: function() {
+                
+                var self = this;
+                
+                self._connected = false;
+                self._sharedSecret = null;
+                self._options = null;
+                
+                // TODO: Unsubscribe from any open Faye channels..
+                delete self._restClient;
+                delete self._cometClient;
+
+                self._dispatch('disconnected', {});
+                
+                return self;
+            },
+            setEntity: function(entity, x, y) {
+                
+                var self = this;
+                self._rest(
+                    'put',
+                    self.channel.entity,
+                    {/* TODO */},
+                    function(response) {/* TODO */}
+                );
+            },
+            getEntity: function(x, y) {
+                
+                var self = this;
+                self._rest(
+                    'get',
+                    self.channel.entity,
+                    {/* TODO */},
+                    function(response) {/* TODO */}
                 );
             }
         }
