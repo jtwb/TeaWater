@@ -16,6 +16,20 @@ var noop = function(message) {},
     callback.apply(this, arguments);
 });
 
+var apiquery = function(method, path, data, success) {
+    $.ajax({
+        type: method,
+        url: apibase + path,
+        data: data,
+        dataType: 'json',
+        success: success,
+        error: function(xhr, status) {
+            ok(false, "Request failed");
+            start();
+        }
+    });
+};
+
 /*
  * Reset the server at the start
  */
@@ -33,30 +47,81 @@ test("Reset server state", function() {
  * Join the server
  */
 test("Join server", function() {
-    $.ajax({
-        type: "PUT",
-        url: apibase + "/player",
-        data: {username:"Jasonator", clientVersion:"0.1.1"},
-        success: function(message, statcode, xhr) {
-            console.log(statcode);
-            console.log(xhr.status);
-            ok(true, "Server responded OK to join request");
-            start();
-        },
-        error: function(message) {
-            ok(false, "Server failed in join request");
-            start();
-        }
-    });
+    var username = "Jasonator";
     stop();
+    // POST user
+    apiquery("POST", "/player",
+        {username: username, clientVersion:"0.1.1"},
+        function (response, status) {
+            ok(
+                ('id' in response)
+                && ('secret' in response),
+                "Server returned ID and secret in response to join request");
+            start();
+    });
 });
 
-test("Create game objects", function() {
+test("Verify new user", function() {
+    var username = "Jasonator";
+    stop();
+    //verify that user was created
+    apiquery("GET", "/player",
+        null,
+        function (response, status) {
+            ok(
+                ('id' in response)
+                && ('username' in response),
+                "Follow-up GET request returns id and username");
+            equal(response.username, username,
+                "Follow-up GET request contains correct username");
+            start();
+    });
+});
 
-	// TODO send several CREATE ENTITY messages
-	//client.publish(fayechannel, testmessage);
-	ok(true, 'Faye published {ob:"ject"} to ' + fayechannel);
-	// TODO verify entities were created
+test("Create game object", function() {
+
+    stop();
+    apiquery("POST", "/entity", {
+            type : 'Water',
+            pos : [6, 6],
+            level : 1
+        }, function (response, status) {
+            ok(
+                ('id' in response),
+                "Server returned ID in response to POST request");
+            start();
+    });
+});
+
+test("Create second game object", function() {
+
+    stop();
+    apiquery("POST", "/entity", {
+            pos : [6, 5],
+            type : "Plant",
+            level : 1
+        }, function (response, status) {
+            ok(
+                ('id' in response),
+                "Server returned ID in response to POST request");
+            start();
+    });
+});
+
+test("Update first game object", function() {
+
+    stop();
+    apiquery("PUT", "/entity?id=2100", {
+            pos : [6, 6],
+            type : "Water",
+            level : 2
+        }, function (response, status) {
+            ok(('id' in response),
+                "Server returned ID in response to PUT request");
+            ok(('level' in response) && (response.level == 2),
+                "Server upgraded record level");
+            start();
+    });
 });
 
 })();

@@ -36,14 +36,20 @@ var RestApiImpl = core.Class.extend(
                 case "GET /entity" :
                     return self.handleEntityGet(context);
                     break;
+                case "POST /player" :
+                    return self.handlePlayerPost(context);
+                    break;
+                case "POST /entity" :
+                    return self.handleEntityPost(context);
+                    break;
                 case "PUT /player" :
                     return self.handlePlayerPut(context);
                     break;
                 case "PUT /entity" :
                     return self.handleEntityPut(context);
                     break;
-                case "POST /entity" :
-                    return self.handleEntityPost(context);
+                case "DELETE /player" :
+                    return self.handlePlayerDelete(context);
                     break;
                 case "DELETE /entity" :
                     return self.handleEntityDelete(context);
@@ -73,19 +79,37 @@ var RestApiImpl = core.Class.extend(
             }
         },
 
-        handlePlayerPut : function(context) {
+        handlePlayerPost : function(context) {
             return {
                 id : 1100,
                 secret : "234509g9re9gjer039035"
             };
         },
 
-        handleEntityPut : function(context) {
-            return { message : "OK Yay, Entity Put" };
+        handleEntityPost : function(context) {
+            return { 
+                id : 2100,
+                type : 'Water',
+                pos : [6, 6],
+                level : 1
+            };
         },
 
-        handleEntityPost : function(context) {
-            return { message : "OK Yay, Entity Post" };
+        handlePlayerPut : function(context) {
+            return { message : "OK Yay, Player Update" };
+        },
+
+        handleEntityPut : function(context) {
+            return { 
+                id : 2100,
+                type : 'Water',
+                pos : [6, 6],
+                level : 2
+            };
+        },
+
+        handlePlayerDelete : function(context) {
+            return { message : "OK Yay, Player Delete" };
         },
 
         handleEntityDelete : function(context) {
