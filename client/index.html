@@ -20,6 +20,7 @@
                 var username = "TestUser";
                 
                 $.tw(
+                    // Passing a function to 'tw' automatically binds it to 'connected'
                     function(userData) {
                         
                         $.tw.log('Connected! Got user ID ' + userData.id + ' =]');
@@ -62,7 +63,13 @@
                                 
                                 // TODO: Close up the game world..
                             }
-                        );
+                        )
+                    }
+                ).on(
+                    'error',
+                    function(message) {
+                        
+                        $.tw.log('Client received error message: ' + message);
                     }
                 ).connect(
                     {

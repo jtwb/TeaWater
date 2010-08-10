@@ -13,14 +13,14 @@ test("Faye Assets Present", function() {
 });
 
 test("Faye Subscribes to Node server", function() {
-	var client = new Faye.Client('/comet');
+	var client = new Faye.Client('http://localhost:8000/comet');
 	client.subscribe(fayechannel, function(){});
 	ok(true, 'Faye connected to ' + fayechannel);
 	client.unsubscribe(fayechannel);
 });
 
 test("Faye Publishes to Node server", function() {
-	var client = new Faye.Client('/comet');
+	var client = new Faye.Client('http://localhost:8000/comet');
 	var testmessage = {ob: 'ject'};
 	client.subscribe(fayechannel, function(){});
 	ok(true, 'Faye connected to ' + fayechannel);

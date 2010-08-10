@@ -87,9 +87,13 @@
         },
         mapResponse: function(response) {
             
-            if(!response || response.hasOwnProperty('error')) {
+            if(!response) {
                 
-                TeaWater.log('The server returned an error! Not sure how we should deal with this yet...', TeaWater.logType.error);
+                TeaWater.log('Got a null response from the server. Something isn\'t working right...', TeaWater.logType.error);
+                return false;
+            } else if(response.hasOwnProperty('error')) {
+                
+                TeaWater.log('The server returned an error! Error: ' + response.error, TeaWater.logType.error);
                 return false;
             }
             
@@ -111,7 +115,7 @@
                                 TeaWater.log('There was an error making an AJAX call to ' + self.url, TeaWater.logType.error);
                             },
                             success: function(response, status, xhr) {
-                                TeaWater.log('Got a response! ' + response);
+                                
                                 self.lastResponse = response;
                                 complete(self.mapResponse(response), self);
                             }
@@ -192,9 +196,9 @@
                 
                 var self = this;
                 
-                if(self.listeners[event]) {
+                if(self._listeners && self._listeners[event]) {
                     $.each(
-                        self.listeners[event],
+                        self._listeners[event],
                         function(i, l) {
                             
                             l(data);
@@ -202,17 +206,18 @@
                     );
                 }
             },
-            listeners: {},
             on: function(event, listener) {
                 
                 var self = this;
                 
-                if(!self.listeners.hasOwnProperty(event)) {
+                self._listeners = self._listeners || {};
+                
+                if(!self._listeners.hasOwnProperty(event)) {
                     
-                    self.listeners[event] = [];
+                    self._listeners[event] = [];
                 }
                 
-                self.listeners[event].push(listener);
+                self._listeners[event].push(listener);
                 
                 return self;
             },
@@ -220,16 +225,18 @@
                 
                 var self = this;
                 
-                $.each(
-                    self.listeners,
-                    function(i, l) {
-                        if(l == listener) {
-                            
-                            self.listeners.splice(i, 1);
-                            return false;
+                if(self._listeners) {
+                    $.each(
+                        self._listeners,
+                        function(i, l) {
+                            if(l == listener) {
+                                
+                                self._listeners.splice(i, 1);
+                                return false;
+                            }
                         }
-                    }
-                );
+                    );
+                }
                 
                 return self;
             },
@@ -249,7 +256,7 @@
                 );
                 
                 self._rest(
-                    'PUT',
+                    'POST',
                     self._channel.player,
                     {
                         username: self._options.username
@@ -274,7 +281,7 @@
                                 
                                 self._dispatch(
                                     'error',
-                                    "Connection refused!"
+                                    "Player connection refused!"
                                 );
                             }
                         }
