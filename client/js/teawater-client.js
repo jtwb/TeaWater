@@ -3,7 +3,11 @@
     // If the client passes a callback to TeaWater, it gets bound to the connect event!
     var TeaWater = function(connectHandler) {
         
-        if(connectHandler) { TeaWater.on('connected', connectHandler); }
+        if($.isFunction(connectHandler)) { 
+            TeaWater._invalidate();
+            TeaWater.on('connected', connectHandler); 
+        }
+        
         return TeaWater;
     };
     
@@ -102,7 +106,7 @@
         query: function(complete) {
             
             var self = this;
-            complete = complete ? complete : $.noop;
+            complete = complete || $.noop;
             
             if(self.url && self.url != "") {
                 $.ajax(
@@ -142,14 +146,17 @@
             },
             _channel: {
                 meta: '/meta',
-                player: '/v1/resource/player',
-                entity: '/v1/resource/entity'
+                player: '/resource/player',
+                entity: '/resource/entity'
             },
             _rest: function(method, path, parameters, callback) {
                 
                 var self = this;
                 
-                self._restClient = self._restClient || new self.Query(
+                self._restClient = self._restClient || new self.Query();
+                
+                $.extend(
+                    self._restClient,
                     {
                         id: 'Rest Client',
                         url: function() {
@@ -206,6 +213,18 @@
                     );
                 }
             },
+            _invalidate: function() {
+                
+                var self = this;
+                
+                self._connected = false;
+                self._sharedSecret = null;
+                self._options = null;
+                
+                // TODO: Unsubscribe from any open Faye channels..
+                delete self._restClient;
+                delete self._cometClient;
+            },
             on: function(event, listener) {
                 
                 var self = this;
@@ -225,13 +244,13 @@
                 
                 var self = this;
                 
-                if(self._listeners) {
+                if(self._listeners && self._listeners.hasOwnProperty(event)) {
                     $.each(
-                        self._listeners,
+                        self._listeners[event],
                         function(i, l) {
                             if(l == listener) {
                                 
-                                self._listeners.splice(i, 1);
+                                self._listeners[event].splice(i, 1);
                                 return false;
                             }
                         }
@@ -240,7 +259,25 @@
                 
                 return self;
             },
-            
+            clear: function(event) {
+                
+                var self = this;
+                
+                if(self._listeners && self._listeners.hasOwnProperty(event)) {
+                    
+                    self._listeners[event] = [];
+                }
+                
+                return self;
+            },
+            reset: function(event) {
+                
+                var self = this;
+                
+                TeaWater.log('Resetting client engine state!', TeaWater.logType.warning);
+                self._invalidate();
+                self._listeners = {};
+            },
             // Connect to the server. Username should be specified by the client.
             connect: function(options) {
                 
@@ -249,7 +286,7 @@
                 self._options = $.extend(
                     {
                         username: "",
-                        restEndpoint: "http://localhost:8000",
+                        restEndpoint: "http://localhost:8000/v1",
                         cometEndpoint: "http://localhost:8000/comet"
                     },
                     options
@@ -295,26 +332,26 @@
                 
                 var self = this;
                 
-                self._connected = false;
-                self._sharedSecret = null;
-                self._options = null;
-                
-                // TODO: Unsubscribe from any open Faye channels..
-                delete self._restClient;
-                delete self._cometClient;
-
+                self._invalidate();
                 self._dispatch('disconnected', {});
                 
                 return self;
+            },
+            entityType: {
+                resource: 'resource',
+                unit: 'unit'
             },
             setEntity: function(entity, x, y) {
                 
                 var self = this;
                 self._rest(
-                    'put',
-                    self.channel.entity,
+                    'post',
+                    self._channel.entity,
                     {/* TODO */},
-                    function(response) {/* TODO */}
+                    function(response) {
+                        // TODO
+                        self._dispatch('updated', {})
+                    }
                 );
             },
             getEntity: function(x, y) {
@@ -322,9 +359,12 @@
                 var self = this;
                 self._rest(
                     'get',
-                    self.channel.entity,
+                    self._channel.entity,
                     {/* TODO */},
-                    function(response) {/* TODO */}
+                    function(response) {
+                        // TODO
+                        self._dispatch('updated', {})
+                    }
                 );
             }
         }
