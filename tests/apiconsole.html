@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Teawater Console Client</title>
+<!-- Include qunit js css, teser js, faye js -->
+<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="js/faye-browser-min.js"></script>
+<script type="text/javascript" src="apiconsole.js"></script>
+
+<style type="text/css">
+
+.world-log { height : 300px; overflow: auto; }
+.game-controls form { display: block; width: 300px; float: left; }
+
+.game-controls label,
+.game-controls input,
+.game-controls select { display: block; }
+
+.game-controls input[type=submit] { clear: left; }
+
+.game-controls .labels { float: left; width: 100px; }
+.game-controls .controls { float: left; }
+
+</style>
+
+</head>
+<body>
+
+ <h1>Teawater API Console</h1>
+ <div id="world" class="world-log">
+    <ul></ul>
+ </div>
+ <div class="game-controls">
+    <form id="create-tower" action="/" method="POST">
+        <fieldset>
+            <legend>Create Tower</legend>
+            <div class="labels">
+                <label for="ct-level">Level</label>
+                <label for="ct-type">Type</label>
+            </div>
+            <div class="controls">
+                <input type="text" id="ct-level" name="level" value=""/>
+                <select id="ct-type" name="type">
+                    <option value="Water">Water</option>
+                    <option value="Plant">Plant</option>
+                </select>
+            </div>
+            <input type="submit" value="Create Tower"/>
+        </fieldset>
+    </form>
+    <form id="update-tower" action="/" method="POST">
+        <fieldset>
+            <legend>Update Tower</legend>
+            <div class="labels">
+                <label for="ut-id">Tower Id</label>
+                <label for="ut-level">Level</label>
+                <label for="ut-type">Type</label>
+            </div>
+            <div class="controls">
+                <input type="text" id="ut-id" name="id" value=""/>
+                <input type="text" id="ut-level" name="level" value=""/>
+                <select id="ut-type" name="type">
+                    <option value="Water">Water</option>
+                    <option value="Plant">Plant</option>
+                </select>
+            </div>
+            <input type="submit" value="Update Tower"/>
+        </fieldset>
+    </form>
+    <form id="delete-tower" action="/" method="POST">
+        <fieldset>
+            <legend>Delete Tower</legend>
+            <div class="labels">
+                <label for="dt-id">Tower Id</label>
+            </div>
+            <div class="controls">
+                <input type="text" id="dt-id" name="id" value=""/>
+            </div>
+            <input type="submit" value="Delete Tower"/>
+        </fieldset>
+    </form>
+ </div>
+
+</body>
+</html>
