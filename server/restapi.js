@@ -11,14 +11,15 @@ var RestApi = core.Class.extend(
             
             var self = this;
             
-            self.options = core.extend(
-                { },
+            self.options = core.extend( {
+                    world : null
+                },
                 options
             );
 
-            self.world = options.world || {};
+            self.world = self.options.world || {};
 
-            self.impl = new restimpl.RestApiImpl(self.world);
+            self.impl = new restimpl.RestApiImpl({world:self.world});
 
             self.authenticator = new restsecure.RestAuthenticator({
                 logFailures : true
@@ -89,7 +90,7 @@ var RestApi = core.Class.extend(
         },
 
         respondJson : function(code, content, context, response) {
-            var json = JSON.stringify(content);
+            var json = JSON.stringify(content || {});
             response.writeHead(code, {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
@@ -101,7 +102,7 @@ var RestApi = core.Class.extend(
         },
 
         respondJsonp : function(code, content, context, response) {
-            var json = JSON.stringify(content),
+            var json = JSON.stringify(content || {}),
                 output = context.callback + "(" + json + ");";
             response.writeHead(code, {
                 'Access-Control-Allow-Origin': '*',
