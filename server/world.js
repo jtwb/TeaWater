@@ -57,6 +57,8 @@ var World = core.Class.extend(
                 }
             }
             
+            // force push (get it?)
+            //if (true) {
             if(self.delta.length) {
                 self.emit('change', self.delta);
             }
@@ -84,6 +86,67 @@ var World = core.Class.extend(
             );
             
             self.delta.push(entity.serialize());
+        },
+        /*
+         * Search world for object given by
+         * @type@ and @key@
+         */
+        getEntity: function(type, id) {
+            switch (type) {
+                case 'player' :
+                    return { 
+                        id : 1100,
+                        username : "Jasonator"
+                    };
+                default :
+                case 'unit' :
+                    return {
+                        id : 2100,
+                        pos : [6, 6],
+                        type : "Water",
+                        level : 1
+                    };
+            }
+        },
+        putEntity: function(type, obj) {
+            switch (type) {
+                case 'player' :
+                    return {
+                        id : 1100,
+                        secret : "234509g9re9gjer039035"
+                    };
+                default :
+                case 'unit' :
+                    return { 
+                        id : 2100,
+                        type : 'Water',
+                        pos : [6, 6],
+                        level : 1
+                    };
+            }
+        },
+        updateEntity: function(type, id, patch) {
+            switch (type) {
+                case 'player' :
+                    return { message : "OK Yay, Player Update" };
+                default :
+                case 'unit' :
+                    return { 
+                        id : 2100,
+                        type : 'Water',
+                        pos : [6, 6],
+                        level : 2
+                    };
+            }
+        },
+        deleteEntity: function(type, id) {
+            switch (type) {
+                case 'player' :
+                    return { message : "OK Yay, Player Delete" };
+                default :
+                case 'unit' :
+                    return { message : "OK Yay, Entity Delete" };
+            }
         }
     }
 );

@@ -34,25 +34,25 @@ var RestApiImpl = core.Class.extend(
                     return self.handlePlayerGet(context);
                     break;
                 case "GET /entity" :
-                    return self.handleEntityGet(context);
+                    return self.handleUnitGet(context);
                     break;
                 case "POST /player" :
                     return self.handlePlayerPost(context);
                     break;
                 case "POST /entity" :
-                    return self.handleEntityPost(context);
+                    return self.handleUnitPost(context);
                     break;
                 case "PUT /player" :
                     return self.handlePlayerPut(context);
                     break;
                 case "PUT /entity" :
-                    return self.handleEntityPut(context);
+                    return self.handleUnitPut(context);
                     break;
                 case "DELETE /player" :
                     return self.handlePlayerDelete(context);
                     break;
                 case "DELETE /entity" :
-                    return self.handleEntityDelete(context);
+                    return self.handleUnitDelete(context);
                     break;
                 default :
                     return self.handleUnknown(context);
@@ -64,56 +64,43 @@ var RestApiImpl = core.Class.extend(
         },
 
         handlePlayerGet : function(context) {
-            return { 
-                id : 1100,
-                username : "Jasonator"
-            };
+            var self = this;
+            return self.world.getEntity('player', context.id);
         },
 
-        handleEntityGet : function(context) {
-            return {
-                id : 2100,
-                pos : [6, 6],
-                type : "Water",
-                level : 1
-            }
+        handleUnitGet : function(context) {
+            var self = this;
+            return self.world.getEntity('unit', context.id);
         },
 
         handlePlayerPost : function(context) {
-            return {
-                id : 1100,
-                secret : "234509g9re9gjer039035"
-            };
+            var self = this;
+            return self.world.putEntity('player', context);
         },
 
-        handleEntityPost : function(context) {
-            return { 
-                id : 2100,
-                type : 'Water',
-                pos : [6, 6],
-                level : 1
-            };
+        handleUnitPost: function(context) {
+            var self = this;
+            return self.world.putEntity('unit', context);
         },
 
         handlePlayerPut : function(context) {
-            return { message : "OK Yay, Player Update" };
+            var self = this;
+            return self.world.updateEntity('player', context.id);
         },
 
-        handleEntityPut : function(context) {
-            return { 
-                id : 2100,
-                type : 'Water',
-                pos : [6, 6],
-                level : 2
-            };
+        handleUnitPut: function(context) {
+            var self = this;
+            return self.world.updateEntity('unit', context.id);
         },
 
         handlePlayerDelete : function(context) {
-            return { message : "OK Yay, Player Delete" };
+            var self = this;
+            return self.world.deleteEntity('player', context.id);
         },
 
-        handleEntityDelete : function(context) {
-            return { message : "OK Yay, Entity Delete" };
+        handleUnitDelete : function(context) {
+            var self = this;
+            return self.world.deleteEntity('unit', context.id);
         }
     }
 );
